@@ -4,8 +4,8 @@ function loadAllItems() {
   return [
     {
       barcode: 'ITEM000000',
-      name: '可口可乐',
       unit: '瓶',
+      name: '可口可乐',
       price: 3.00
     },
     {
@@ -84,13 +84,15 @@ function get_tag_list(barcode_list){
 	var items_free = loadPromotions()[0].barcodes;
 	var tag_list = [];
 	items.forEach(function(val,index,items){
-		if(barcode_list[val.barcode]){
+		if(barcode_list[val.barcode] != undefined){
 			val.count = barcode_list[val.barcode];
-			items_free.forEach(function(val_free){
-				if(barcode_list[val_free]){
+			
+			for(let i = 0;i<items_free.length;i++){
+				if(val.barcode === items_free[i]){
 					val.free = Math.floor(val.count/3);
 				}
-			});
+			}
+			
 			tag_list.push(val);
 		}
 	});
@@ -102,9 +104,14 @@ function get_print_list(tag_list){
 	var summary = 0;
 	var summary_free = 0;
 	tag_list.forEach(function(val){
-		print_list += '\n'+ '名称：' +val.name+ '，数量：' +val.count+val.unit+ '，单价：' +val.price.toFixed(2)+ '(元)，小计：' +(val.price*(val.count-val.free)).toFixed(2)+'(元)';
-		summary_free += val.free * val.price;
-		summary += val.price*(val.count-val.free);
+		if(val.free){
+			print_list += '\n'+ '名称：' +val.name+ '，数量：' +val.count+val.unit+ '，单价：' +val.price.toFixed(2)+ '(元)，小计：' +(val.price*(val.count-val.free)).toFixed(2)+'(元)';
+			summary_free += val.free * val.price;
+			summary += val.price*(val.count-val.free);
+		}else{
+			print_list += '\n'+ '名称：' +val.name+ '，数量：' +val.count+val.unit+ '，单价：' +val.price.toFixed(2)+ '(元)，小计：' +(val.price*val.count).toFixed(2)+'(元)';
+			summary += val.price*val.count;
+		}
 	});
 	print_list += '\n'+'----------------------'+'\n'+ '总计：'+summary.toFixed(2)+ '(元)' +'\n'+ '节省：' +summary_free.toFixed(2)+'(元)'+'\n'+'**********************';
 	return print_list;
